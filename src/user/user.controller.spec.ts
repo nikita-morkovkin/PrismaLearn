@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller.js';
 import { UserService } from './user.service.js';
@@ -79,5 +80,18 @@ describe('UserController', () => {
   it('should update a user by id', async () => {
     const result = await controller.updateUserById(user.id, user);
     expect(result).toEqual(user);
+  });
+
+  it('should throw an exception if user not found', async () => {
+    jest
+      .spyOn(service, 'getUserById')
+      .mockRejectedValue(new NotFoundException());
+
+    try {
+      await controller.getUserById('12121212');
+    } catch (error) {
+      expect(error).toBeInstanceOf(NotFoundException);
+      expect(error.message).toBe('Not Found');
+    }
   });
 });
